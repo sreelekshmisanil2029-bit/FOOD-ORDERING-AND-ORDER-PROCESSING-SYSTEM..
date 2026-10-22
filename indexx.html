@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CraveFlow food ordering and FIFO order processing demo">
+  <title>CraveFlow | Food Ordering</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">🍴</span><span>Crave<span class="brand-accent">Flow</span></span></a>
+    <nav><a href="#menu">Menu</a><a href="#orders">Order tracking</a><a href="#admin">Dashboard</a></nav>
+    <a class="nav-cta" href="#menu">Order now <span>↗</span></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="pulse"></span> FRESHLY MADE, HAPPILY DELIVERED</span>
+        <h1>Good food.<br><span>Good mood.</span></h1>
+        <p>Your cravings, one click away. Pick your favourites and watch your order move through our smart FIFO queue.</p>
+        <div class="hero-actions"><a class="button button-dark" href="#menu">Explore menu <span>↓</span></a><span class="delivery-note">✨ Made fresh for you</span></div>
+        <div class="hero-proof"><span class="avatar-stack"><i>🍔</i><i>🍕</i><i>🥗</i></span><span><strong>Fresh picks, every day</strong><small>Easy ordering · Clear order status</small></span></div>
+      </div>
+      <div class="hero-art">
+        <div class="art-blob"></div>
+        <div class="hero-food">🍔</div>
+        <div class="floating-card floating-rating"><span>⭐</span><div><strong>Made with love</strong><small>Every single order</small></div></div>
+        <div class="floating-card floating-delivery"><span class="delivery-icon">⚡</span><div><strong>Quick & easy</strong><small>Order in a few clicks</small></div></div>
+        <span class="sparkle sparkle-one">✦</span><span class="sparkle sparkle-two">✳</span>
+      </div>
+    </section>
+
+    <section class="stats-grid" id="admin">
+      <article class="stat-card stat-purple"><span class="stat-icon">🧾</span><span class="stat-label">Total orders</span><strong id="totalOrders">0</strong><small>All orders received</small></article>
+      <article class="stat-card stat-orange"><span class="stat-icon">⏳</span><span class="stat-label">Pending</span><strong id="pendingOrders">0</strong><small>Waiting in the queue</small></article>
+      <article class="stat-card stat-green"><span class="stat-icon">✅</span><span class="stat-label">Completed</span><strong id="completedOrders">0</strong><small>Successfully processed</small></article>
+      <article class="stat-card stat-pink"><span class="stat-icon">💸</span><span class="stat-label">Completed sales</span><strong id="completedSales">₹0</strong><small>Sales from completed orders</small></article>
+    </section>
+
+    <section class="section" id="menu">
+      <div class="section-heading"><div><span class="eyebrow">THE GOOD STUFF</span><h2>Find your <span>favourite.</span></h2><p>Fresh picks to make your day a little tastier.</p></div><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search food..." aria-label="Search food"></label></div>
+      <div class="category-row" id="categories">
+        <button class="category active" data-category="All">✨ All items</button>
+        <button class="category" data-category="Burgers">🍔 Burgers</button>
+        <button class="category" data-category="Pizza">🍕 Pizza</button>
+        <button class="category" data-category="Pasta">🍝 Pasta</button>
+        <button class="category" data-category="Sides">🍟 Sides</button>
+        <button class="category" data-category="Drinks">🥤 Drinks</button>
+        <button class="category" data-category="Healthy">🥗 Healthy</button>
+      </div>
+      <div class="menu-grid" id="menuGrid"><div class="loading-card">Loading the delicious stuff… 🍽️</div></div>
+    </section>
+
+    <section class="order-layout">
+      <section class="panel cart-panel">
+        <div class="panel-heading"><div><span class="eyebrow">YOUR PICKS</span><h2>Your basket <span class="count-badge" id="cartCount">0</span></h2></div><span class="panel-emoji">🛍️</span></div>
+        <div id="cartItems" class="cart-items"><div class="empty-state"><span>🧺</span><strong>Your basket is waiting</strong><p>Add something delicious from the menu.</p></div></div>
+        <div class="cart-total"><span>Estimated total</span><strong id="cartTotal">₹0.00</strong></div>
+        <form id="orderForm">
+          <label class="field-label" for="customerName">Your name</label>
+          <input class="text-input" id="customerName" name="customer" maxlength="60" placeholder="e.g. Sree" required>
+          <button class="button button-primary checkout-button" type="submit">Place my order <span>→</span></button>
+          <p class="tiny-note">Demo checkout · No payment is collected</p>
+        </form>
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="panel queue-panel" id="orders">
+        <div class="panel-heading"><div><span class="eyebrow">FIRST IN, FIRST OUT</span><h2>Order queue <span class="live-dot"></span></h2></div><span class="panel-emoji">📦</span></div>
+        <p class="panel-description">The first order placed is the first one processed. That's FIFO in action!</p>
+        <div class="queue-visual"><div class="queue-end"><span>FRONT</span><small>Next to process</small></div><div class="queue-track" id="queueTrack"><span class="queue-empty">Your queue will appear here</span></div><div class="queue-end queue-end-right"><span>REAR</span><small>Latest order</small></div></div>
+        <button class="button button-dark process-button" id="processButton" type="button">⚡ Process next order</button>
+        <div class="history-heading"><h3>Recent orders</h3><span class="history-caption">Live session</span></div>
+        <div class="order-history" id="orderHistory"><div class="empty-history">No orders yet. Be the first! ✨</div></div>
+      </section>
+    </section>
+    <div class="fifo-banner"><span class="fifo-icon">💡</span><div><strong>A real-world use of Data Structures</strong><p>CraveFlow uses a Queue (FIFO) to process orders in the order they arrive: enqueue at the rear, dequeue from the front.</p></div><span class="fifo-tag">QUEUE · FIFO</span></div>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#"><span class="brand-mark">🍴</span><span>Crave<span class="brand-accent">Flow</span></span></a><span>Made for a college project with a little extra flavour 💛</span><span>Java · HTML · CSS · JavaScript</span></footer>
+  <script>
+    const API = "";
+    let menuItems = [];
+    let cart = {};
+    let selectedCategory = "All";
+    let orders = [];
+
+    const money = value => "₹" + Number(value).toFixed(2);
+    const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[ch]));
+
+    async function loadMenu() {
+      try {
+        const response = await fetch(API + "/api/menu");
+        if (!response.ok) throw new Error("Menu request failed");
+        const data = await response.json();
+        menuItems = data.menu || [];
+        renderMenu();
+      } catch (error) {
+        document.getElementById("menuGrid").innerHTML =
+          '<div class="error-card">The menu could not load. Start the Java server using the README steps, then refresh this page.</div>';
+      }
+    }
+
+    function renderMenu() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtered = menuItems.filter(item =>
+        (selectedCategory === "All" || item.category === selectedCategory) &&
+        (item.name.toLowerCase().includes(query) || item.description.toLowerCase().includes(query))
+      );
+      const grid = document.getElementById("menuGrid");
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty-menu">No matching dishes. Try another search. 🥹</div>';
+        return;
+      }
+      grid.innerHTML = filtered.map((item, index) => `
+        <article class="food-card">
+          <div class="food-visual food-tone-${(item.id - 1) % 6}">
+            <span class="food-emoji">${item.emoji}</span>
+            <span class="food-category">${escapeHTML(item.category)}</span>
+            <span class="food-number">${String(item.id).padStart(2, "0")}</span>
+          </div>
+          <div class="food-info">
+            <div class="food-title-row"><h3>${escapeHTML(item.name)}</h3><span class="food-rating">★ 4.8</span></div>
+            <p>${escapeHTML(item.description)}</p>
+            <div class="food-bottom"><strong>${money(item.price)}</strong><button class="add-button" onclick="addToCart(${item.id})" aria-label="Add ${escapeHTML(item.name)} to basket">＋ Add</button></div>
+          </div>
+        </article>`).join("");
+    }
+
+    function addToCart(id) {
+      cart[id] = (cart[id] || 0) + 1;
+      renderCart();
+      showNotice("Added to your basket! 💛", "success");
+    }
+
+    function changeQuantity(id, amount) {
+      cart[id] = (cart[id] || 0) + amount;
+      if (cart[id] <= 0) delete cart[id];
+      renderCart();
+    }
+
+    function renderCart() {
+      const entries = Object.entries(cart).filter(([, qty]) => qty > 0);
+      const count = entries.reduce((sum, [, qty]) => sum + qty, 0);
+      const total = entries.reduce((sum, [id, qty]) => {
+        const item = menuItems.find(food => food.id === Number(id));
+        return sum + (item ? item.price * qty : 0);
+      }, 0);
+      document.getElementById("cartCount").textContent = count;
+      document.getElementById("cartTotal").textContent = money(total);
+      const container = document.getElementById("cartItems");
+      if (!entries.length) {
+        container.innerHTML = '<div class="empty-state"><span>🧺</span><strong>Your basket is waiting</strong><p>Add something delicious from the menu.</p></div>';
+        return;
+      }
+      container.innerHTML = entries.map(([id, qty]) => {
+        const item = menuItems.find(food => food.id === Number(id));
+        if (!item) return "";
+        return `<div class="cart-row"><span class="cart-food-emoji">${item.emoji}</span><div class="cart-food-info"><strong>${escapeHTML(item.name)}</strong><small>${money(item.price)} each</small></div><div class="quantity-control"><button type="button" onclick="changeQuantity(${id},-1)" aria-label="Decrease quantity">−</button><span>${qty}</span><button type="button" onclick="changeQuantity(${id},1)" aria-label="Increase quantity">＋</button></div></div>`;
+      }).join("");
+    }
+
+    function showNotice(message, type) {
+      const notice = document.getElementById("notice");
+      notice.textContent = message;
+      notice.className = "notice " + type;
+    }
+
+    async function placeOrder(event) {
+      event.preventDefault();
+      const customer = document.getElementById("customerName").value.trim();
+      if (!customer) return showNotice("Please enter your name.", "error");
+      if (!Object.keys(cart).length) return showNotice("Add at least one item before ordering.", "error");
+      const items = Object.entries(cart).map(([id, qty]) => `${id}:${qty}`).join(",");
+      const body = new URLSearchParams({ customer, items });
+      try {
+        const response = await fetch(API + "/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not place order.");
+        cart = {};
+        renderCart();
+        showNotice(`Order #${data.orderId} placed successfully! Total: ${money(data.total)} 🎉`, "success");
+        await refreshOrders();
+      } catch (error) {
+        showNotice(error.message || "Could not connect to the Java server.", "error");
+      }
+    }
+
+    async function processNext() {
+      const button = document.getElementById("processButton");
+      button.disabled = true;
+      try {
+        const response = await fetch(API + "/api/process", { method: "POST" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not process order.");
+        showNotice(`Order #${data.orderId} completed! FIFO works 🎯`, "success");
+        await refreshOrders();
+      } catch (error) {
+        showNotice(error.message || "Could not process the next order.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function refreshOrders() {
+      try {
+        const response = await fetch(API + "/api/orders");
+        if (!response.ok) throw new Error("Orders request failed");
+        const data = await response.json();
+        orders = data.orders || [];
+        document.getElementById("totalOrders").textContent = orders.length;
+        document.getElementById("pendingOrders").textContent = data.pending || 0;
+        document.getElementById("completedOrders").textContent = data.completed || 0;
+        document.getElementById("completedSales").textContent = money(data.sales || 0);
+        renderQueue();
+        renderHistory();
+      } catch (error) {
+        // loadMenu displays the primary server connection message when needed.
+      }
+    }
+
+    function renderQueue() {
+      const pending = orders.filter(order => order.status === "Pending");
+      const track = document.getElementById("queueTrack");
+      if (!pending.length) {
+        track.innerHTML = '<span class="queue-empty">No pending orders — all caught up! ✨</span>';
+        return;
+      }
+      track.innerHTML = pending.map((order, index) =>
+        `<div class="queue-chip ${index === 0 ? "queue-next" : ""}"><span>${index === 0 ? "⚡" : "📦"}</span><strong>#${order.id}</strong><small>${escapeHTML(order.customer)}</small></div>`
+      ).join("");
+    }
+
+    function renderHistory() {
+      const history = document.getElementById("orderHistory");
+      if (!orders.length) {
+        history.innerHTML = '<div class="empty-history">No orders yet. Be the first! ✨</div>';
+        return;
+      }
+      history.innerHTML = [...orders].reverse().slice(0, 8).map(order => {
+        const summary = order.items.map(item => `${item.quantity}× ${escapeHTML(item.name)}`).join(", ");
+        return `<article class="history-row"><div class="history-order-icon">${order.status === "Completed" ? "✅" : "🕒"}</div><div class="history-main"><strong>Order #${order.id} · ${escapeHTML(order.customer)}</strong><small>${summary}</small></div><div class="history-right"><strong>${money(order.total)}</strong><span class="status ${order.status === "Completed" ? "status-completed" : "status-pending"}">${order.status}</span></div></article>`;
+      }).join("");
+    }
+
+    document.getElementById("searchInput").addEventListener("input", renderMenu);
+    document.getElementById("categories").addEventListener("click", event => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+      selectedCategory = button.dataset.category;
+      document.querySelectorAll(".category").forEach(item => item.classList.toggle("active", item === button));
+      renderMenu();
+    });
+    document.getElementById("orderForm").addEventListener("submit", placeOrder);
+    document.getElementById("processButton").addEventListener("click", processNext);
+    loadMenu();
+    refreshOrders();
+  </script>
+</body>
+</html>
